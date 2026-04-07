@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  background-color: #f8fafc;
+  color: #334155;
+}
+
 @layer base {
   :root {
     --brand: #1a56db;
@@ -57,7 +62,6 @@
   .sector-qual  { @apply bg-purple-100 text-purple-800; }
 }
 
-/* ── PrimeVue overrides ── */
 .p-dialog .p-dialog-header {
   padding: 1rem 1.25rem 0.75rem;
   border-bottom: 1px solid #e5e7eb;
