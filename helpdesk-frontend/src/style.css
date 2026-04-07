@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: #1a56db;
+    --brand-dark: #1347c0;
+    --brand-light: #eff4ff;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #f1f5f9;
+    color: #374151;
+    font-size: 14px;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@layer components {
+  /* ── Sidebar nav item ── */
+  .nav-item {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-600
+           transition-all duration-150 cursor-pointer whitespace-nowrap overflow-hidden select-none;
+  }
+  .nav-item:hover  { @apply bg-gray-100 text-gray-800; }
+  .nav-item.active { @apply bg-blue-50 text-blue-700 font-semibold; }
+
+  /* ── Status badges ── */
+  .status-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+  .status-open      { @apply bg-blue-50   text-blue-700; }
+  .status-progress  { @apply bg-yellow-50 text-yellow-700; }
+  .status-waiting   { @apply bg-purple-50 text-purple-700; }
+  .status-done      { @apply bg-green-50  text-green-700; }
+
+  /* ── Priority badges ── */
+  .prio-high   { @apply bg-red-50    text-red-700; }
+  .prio-medium { @apply bg-orange-50 text-orange-700; }
+  .prio-low    { @apply bg-gray-100  text-gray-600; }
+
+  /* ── Sector color tags ── */
+  .sector-ti    { @apply bg-blue-100   text-blue-800; }
+  .sector-rh    { @apply bg-green-100  text-green-800; }
+  .sector-manut { @apply bg-orange-100 text-orange-800; }
+  .sector-qual  { @apply bg-purple-100 text-purple-800; }
+}
+
+/* ── PrimeVue overrides ── */
+.p-dialog .p-dialog-header {
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.p-dialog .p-dialog-content {
+  padding: 1.25rem;
+}
+.p-dialog .p-dialog-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.p-inputtext, .p-textarea, .p-select {
+  font-family: 'DM Sans', system-ui, sans-serif !important;
+  font-size: 13px !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }

@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowPilot – Raposo Plásticos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1a56db;
+    --blue-dark: #1347c0;
+    --blue-light: #eff4ff;
+    --blue-mid: #3b82f6;
+    --sidebar-w: 200px;
+    --header-h: 48px;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --green: #22c55e;
+    --orange: #f97316;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #8b5cf6;
+    --teal: #14b8a6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: var(--gray-700); font-size: 13px; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+  /* ===== LOGIN ===== */
+  #loginScreen {
+    position: fixed; inset: 0; z-index: 1000;
+    background: linear-gradient(135deg, #1a3a6e 0%, #1a56db 60%, #3b82f6 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-card {
+    background: #fff; border-radius: 12px; padding: 40px 36px;
+    width: 360px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .login-logo-icon { width: 38px; height: 38px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .login-logo-icon svg { width: 22px; height: 22px; fill: white; }
+  .login-logo-text { font-size: 18px; font-weight: 700; color: var(--gray-800); line-height: 1.1; }
+  .login-logo-sub { font-size: 11px; color: var(--gray-400); font-weight: 400; }
+  .login-title { font-size: 20px; font-weight: 700; color: var(--gray-800); margin-bottom: 6px; }
+  .login-sub { font-size: 12px; color: var(--gray-500); margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--gray-700); margin-bottom: 6px; }
+  .form-group input {
+    width: 100%; border: 1px solid var(--gray-300); border-radius: 6px;
+    padding: 9px 12px; font-size: 13px; font-family: 'Inter', sans-serif;
+    color: var(--gray-800); outline: none; transition: border-color .2s;
+  }
+  .form-group input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,86,219,.1); }
+  .btn-login {
+    width: 100%; background: var(--blue); color: #fff; border: none;
+    border-radius: 6px; padding: 10px; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: background .2s;
+    margin-top: 4px;
+  }
+  .btn-login:hover { background: var(--blue-dark); }
+  .login-hint { font-size: 11px; color: var(--gray-400); margin-top: 16px; text-align: center; }
+
+  /* ===== LAYOUT ===== */
+  #app { display: flex; flex-direction: column; height: 100vh; }
+  
+  /* HEADER */
+  .header {
+    height: var(--header-h); background: #fff; border-bottom: 1px solid var(--gray-200);
+    display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0; z-index: 100;
+  }
+  .header-logo { display: flex; align-items: center; gap: 8px; width: var(--sidebar-w); flex-shrink: 0; }
+  .logo-icon { width: 30px; height: 30px; background: var(--blue); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo-icon svg { width: 18px; height: 18px; fill: white; }
+  .logo-text { font-size: 13px; font-weight: 700; color: var(--gray-800); line-height: 1.1; }
+  .logo-text small { display: block; font-size: 9px; font-weight: 400; color: var(--gray-400); }
+  .sidebar-toggle { width: 24px; height: 24px; display: flex; flex-direction: column; justify-content: center; gap: 4px; cursor: pointer; margin-left: 4px; }
+  .sidebar-toggle span { height: 2px; background: var(--gray-400); border-radius: 2px; transition: .2s; }
+  .sidebar-toggle span:nth-child(1) { width: 16px; }
+  .sidebar-toggle span:nth-child(2) { width: 12px; }
+  .header-center { display: flex; align-items: center; gap: 12px; flex: 1; }
+  .header-date { font-size: 12px; color: var(--gray-500); font-weight: 500; border-left: 1px solid var(--gray-200); padding-left: 12px; }
+  .header-weather { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--gray-500); }
+  .header-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .icon-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--gray-200); background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--gray-500); transition: background .15s; }
+  .icon-btn:hover { background: var(--gray-50); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #1a56db, #60a5fa); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+
+  /* BODY */
+  .body-wrap { display: flex; flex: 1; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--gray-200);
+    display: flex; flex-direction: column; padding: 12px 8px; gap: 2px; flex-shrink: 0;
+    transition: width .25s;
+  }
+  .sidebar.collapsed { width: 48px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px;
+    cursor: pointer; font-size: 12px; font-weight: 500; color: var(--gray-600);
+    transition: background .15s, color .15s; white-space: nowrap; overflow: hidden;
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--gray-100); color: var(--gray-800); }
+  .nav-item.active { background: var(--blue-light); color: var(--blue); }
+  .nav-item svg { flex-shrink: 0; }
+  .nav-label { overflow: hidden; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .5px; padding: 8px 10px 4px; white-space: nowrap; overflow: hidden; }
+  .sidebar.collapsed .nav-label, .sidebar.collapsed .nav-section { display: none; }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* PAGE HEADER */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; }
+  .page-title-wrap { display: flex; align-items: center; gap: 12px; }
+  .page-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; }
+  .page-icon.ti { background: #eff6ff; }
+  .page-icon.rh { background: #f0fdf4; }
+  .page-icon.manut { background: #fff7ed; }
+  .page-icon.qual { background: #fdf4ff; }
+  .page-title { font-size: 16px; font-weight: 700; color: var(--gray-800); }
+  .page-sub { font-size: 12px; color: var(--gray-500); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: .15s; }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-dark); }
+  .btn-secondary { background: #fff; color: var(--gray-700); border: 1px solid var(--gray-200); }
+  .btn-secondary:hover { background: var(--gray-50); }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--gray-200); }
+  .tab { padding: 8px 14px; font-size: 12px; font-weight: 500; color: var(--gray-500); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: .15s; display: flex; align-items: center; gap: 6px; }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .tab:hover:not(.active) { color: var(--gray-700); }
+  .tab-badge { background: var(--blue); color: #fff; border-radius: 10px; padding: 1px 6px; font-size: 10px; font-weight: 700; }
+
+  /* TOOLBAR */
+  .toolbar { display: flex; align-items: center; gap: 8px; }
+  .search-box { flex: 1; position: relative; }
+  .search-box input { width: 100%; border: 1px solid var(--gray-200); border-radius: 6px; padding: 7px 10px 7px 32px; font-size: 12px; font-family: 'Inter', sans-serif; color: var(--gray-700); outline: none; background: #fff; }
+  .search-box input:focus { border-color: var(--blue); }
+  .search-box svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+  .view-btns { display: flex; border: 1px solid var(--gray-200); border-radius: 6px; overflow: hidden; }
+  .view-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; color: var(--gray-400); border: none; transition: .15s; }
+  .view-btn.active { background: var(--blue-light); color: var(--blue); }
+  .filter-btn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border: 1px solid var(--gray-200); border-radius: 6px; background: #fff; font-size: 12px; color: var(--gray-600); cursor: pointer; font-family: 'Inter', sans-serif; }
+
+  /* CARDS */
+  .card { background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; }
+  .card-body { padding: 16px; }
+
+  /* DASHBOARD */
+  .welcome-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; padding: 20px 24px; }
+  .welcome-title { font-size: 18px; font-weight: 700; color: var(--gray-800); margin-bottom: 4px; }
+  .welcome-sub { font-size: 13px; color: var(--gray-500); }
+  .quick-actions-label { font-size: 12px; font-weight: 600; color: var(--gray-500); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .quick-actions-label span { font-size: 11px; font-weight: 400; color: var(--gray-400); padding: 1px 6px; background: var(--gray-100); border-radius: 4px; }
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .quick-card {
+    background: #fff; border: 1px solid var(--gray-200); border-radius: 8px;
+    padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: box-shadow .15s, border-color .15s;
+  }
+  .quick-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); border-color: var(--gray-300); }
+  .quick-card-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; color: var(--blue); flex-shrink: 0; }
+  .quick-card-title { font-size: 13px; font-weight: 600; color: var(--gray-800); }
+  .quick-card-sub { font-size: 11px; color: var(--gray-500); }
+
+  /* TABLE */
+  .table-wrap { background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
+  th { padding: 9px 12px; font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: none; text-align: left; white-space: nowrap; cursor: pointer; user-select: none; }
+  th:hover { color: var(--gray-700); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); font-size: 12px; color: var(--gray-700); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+  .table-footer { padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--gray-200); font-size: 11px; color: var(--gray-500); }
+  .pagination { display: flex; align-items: center; gap: 4px; }
+  .page-btn { width: 26px; height: 26px; border: 1px solid var(--gray-200); border-radius: 4px; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; color: var(--gray-600); transition: .15s; }
+  .page-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .page-btn:hover:not(.active) { background: var(--gray-50); }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-blue { background: #eff4ff; color: var(--blue); }
+  .badge-green { background: #f0fdf4; color: #15803d; }
+  .badge-orange { background: #fff7ed; color: #c2410c; }
+  .badge-red { background: #fef2f2; color: #b91c1c; }
+  .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+  .badge-yellow { background: #fefce8; color: #854d0e; }
+  .badge-purple { background: #f5f3ff; color: #7c3aed; }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* STATUS badges */
+  .status-nao-iniciado { background: #fff0f0; color: var(--red); }
+  .status-em-andamento { background: #fff7ed; color: var(--orange); }
+  .status-concluido { background: #f0fdf4; color: #15803d; }
+  .status-aguardando { background: #fefce8; color: #854d0e; }
+
+  /* AVATAR CHIPS */
+  .avatar-chip { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; border: 2px solid #fff; }
+  .avatar-group { display: flex; }
+  .avatar-group .avatar-chip { margin-left: -6px; }
+  .avatar-group .avatar-chip:first-child { margin-left: 0; }
+
+  /* PLANNER CARDS */
+  .planner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .planner-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; padding: 14px 16px; cursor: pointer; transition: box-shadow .15s; }
+  .planner-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .planner-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .planner-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .planner-name { font-size: 13px; font-weight: 700; color: var(--gray-800); }
+  .planner-desc { font-size: 11px; color: var(--gray-500); margin-bottom: 10px; }
+  .planner-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; }
+  .planner-meta-item label { color: var(--gray-400); display: block; }
+  .planner-meta-item span { color: var(--gray-700); font-weight: 500; }
+  .planner-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--gray-100); font-size: 11px; }
+  .planner-footer a { color: var(--blue); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-bottom: 16px; background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; overflow: hidden; }
+  .stat-item { padding: 16px; text-align: center; border-right: 1px solid var(--gray-200); }
+  .stat-item:last-child { border-right: none; }
+  .stat-icon { display: flex; justify-content: center; margin-bottom: 6px; }
+  .stat-number { font-size: 20px; font-weight: 700; color: var(--gray-800); }
+  .stat-label { font-size: 11px; color: var(--gray-500); }
+
+  /* TASK KANBAN */
+  .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+  .kanban-col { min-width: 260px; max-width: 300px; flex-shrink: 0; }
+  .kanban-col-header { background: var(--blue); color: #fff; border-radius: 8px 8px 0 0; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .kanban-col-title { font-size: 12px; font-weight: 700; }
+  .kanban-col-count { background: rgba(255,255,255,.25); padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .kanban-col-body { background: var(--gray-50); border: 1px solid var(--gray-200); border-top: none; border-radius: 0 0 8px 8px; min-height: 200px; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+  .kanban-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 6px; padding: 10px 12px; cursor: pointer; transition: box-shadow .15s; }
+  .kanban-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+  .kanban-card-title { font-size: 12px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px; }
+  .kanban-card-meta { display: flex; align-items: center; justify-content: space-between; }
+  .kanban-card-date { font-size: 10px; color: var(--gray-400); display: flex; align-items: center; gap: 3px; }
+
+  /* HELPDESK specific */
+  .sector-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .sector-chip {
+    display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+    border-radius: 20px; border: 1px solid var(--gray-200); background: #fff;
+    font-size: 12px; font-weight: 500; cursor: pointer; transition: .15s;
+    color: var(--gray-600);
+  }
+  .sector-chip.active-ti { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .sector-chip.active-rh { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+  .sector-chip.active-manut { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+  .sector-chip.active-qual { background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe; }
+  .sector-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-ti { background: #3b82f6; }
+  .dot-rh { background: #22c55e; }
+  .dot-manut { background: #f97316; }
+  .dot-qual { background: #8b5cf6; }
+
+  /* MODAL */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.4);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: #fff; border-radius: 10px; width: 560px; max-width: 95vw; max-height: 88vh;
+    overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    transform: translateY(12px); transition: transform .2s;
+  }
+  .overlay.open .modal { transform: translateY(0); }
+  .modal-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; z-index: 1; }
+  .modal-title { font-size: 15px; font-weight: 700; color: var(--gray-800); display: flex; align-items: center; gap: 8px; }
+  .modal-close { width: 28px; height: 28px; border-radius: 6px; border: none; background: var(--gray-100); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--gray-500); transition: .15s; }
+  .modal-close:hover { background: var(--gray-200); }
+  .modal-body { padding: 18px 20px; }
+  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+
+  /* FORM */
+  .form-row { display: grid; gap: 12px; margin-bottom: 14px; }
+  .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-label { font-size: 11px; font-weight: 600; color: var(--gray-600); margin-bottom: 5px; display: flex; align-items: center; gap: 3px; }
+  .field-required { color: var(--red); }
+  .field-input, .field-select, .field-textarea {
+    width: 100%; border: 1px solid var(--gray-200); border-radius: 6px;
+    padding: 7px 10px; font-size: 12px; font-family: 'Inter', sans-serif;
+    color: var(--gray-700); outline: none; transition: border-color .2s; background: #fff;
+  }
+  .field-input:focus, .field-select:focus, .field-textarea:focus {
+    border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,86,219,.08);
+  }
+  .field-textarea { resize: vertical; min-height: 80px; }
+  .field-group { margin-bottom: 14px; }
+  .section-title { font-size: 12px; font-weight: 700; color: var(--gray-700); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100); }
+  .ai-btn { display: flex; align-items: center; gap: 6px; background: var(--blue); color: #fff; border: none; border-radius: 5px; padding: 5px 10px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 6px; }
+  .checkbox-group { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray-700); }
+  .checkbox-group input { width: 14px; height: 14px; accent-color: var(--blue); }
+
+  /* TICKET DETAIL */
+  .ticket-detail { display: grid; grid-template-columns: 1fr 280px; gap: 16px; }
+  .ticket-main { display: flex; flex-direction: column; gap: 12px; }
+  .ticket-sidebar-panel { display: flex; flex-direction: column; gap: 12px; }
+  .comment-area { background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; }
+  .comment-header { padding: 12px 14px; border-bottom: 1px solid var(--gray-100); font-size: 12px; font-weight: 700; color: var(--gray-700); }
+  .comment-list { padding: 12px 14px; display: flex; flex-direction: column; gap: 14px; }
+  .comment-item { display: flex; gap: 10px; }
+  .comment-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .comment-bubble { flex: 1; background: var(--gray-50); border-radius: 0 8px 8px 8px; padding: 10px 12px; }
+  .comment-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .comment-name { font-size: 11px; font-weight: 700; color: var(--gray-700); }
+  .comment-time { font-size: 10px; color: var(--gray-400); }
+  .comment-text { font-size: 12px; color: var(--gray-600); line-height: 1.5; }
+  .comment-mention { color: var(--blue); font-weight: 600; }
+  .comment-input-area { padding: 12px 14px; border-top: 1px solid var(--gray-100); display: flex; gap: 8px; }
+  .comment-input { flex: 1; border: 1px solid var(--gray-200); border-radius: 6px; padding: 8px 10px; font-size: 12px; font-family: 'Inter', sans-serif; color: var(--gray-700); outline: none; resize: none; }
+  .comment-input:focus { border-color: var(--blue); }
+  .info-panel { background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; padding: 14px; }
+  .info-panel-title { font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 12px; }
+  .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; }
+  .info-label { color: var(--gray-500); }
+  .info-value { color: var(--gray-800); font-weight: 500; text-align: right; }
+  .priority-high { color: var(--red); }
+  .priority-med { color: var(--orange); }
+  .priority-low { color: var(--green); }
+
+  /* EMPTY STATE */
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 20px; color: var(--gray-500); }
+  .empty-icon { width: 48px; height: 48px; background: var(--gray-100); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+  .empty-title { font-size: 14px; font-weight: 600; color: var(--gray-700); margin-bottom: 4px; }
+  .empty-sub { font-size: 12px; color: var(--gray-400); }
+
+  /* FOOTER */
+  .footer { padding: 10px 24px; border-top: 1px solid var(--gray-200); background: #fff; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: var(--gray-400); flex-shrink: 0; }
+  .footer-links { display: flex; gap: 12px; }
+  .footer-links a { color: var(--gray-400); text-decoration: none; display: flex; align-items: center; gap: 3px; }
+  .footer-links a:hover { color: var(--blue); }
+
+  /* NOTIFICATIONS */
+  .notification {
+    position: fixed; top: 60px; right: 20px; background: #1f2937; color: #fff;
+    border-radius: 8px; padding: 10px 14px; font-size: 12px; z-index: 999;
+    display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    transform: translateX(120%); transition: transform .3s;
+  }
+  .notification.show { transform: translateX(0); }
+  .notification.success { background: #166534; }
+  .notification.info { background: #1e40af; }
+
+  /* ADMIN PANEL */
+  .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .sector-admin-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; padding: 16px; }
+  .sector-admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .sector-admin-name { font-size: 13px; font-weight: 700; color: var(--gray-800); display: flex; align-items: center; gap: 8px; }
+  .toggle { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--gray-300); border-radius: 20px; transition: .3s; cursor: pointer; }
+  .toggle-slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+  .toggle input:checked + .toggle-slider { background: var(--blue); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+  .company-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .company-chip { padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 500; background: var(--blue-light); color: var(--blue); border: 1px solid #bfdbfe; }
+  .field-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+  .field-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--gray-600); padding: 4px 8px; background: var(--gray-50); border-radius: 4px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gray-300); }
+
+  /* Responsive tweaks */
+  @media (max-width: 768px) {
+    .planner-grid, .admin-grid, .quick-grid { grid-template-columns: 1fr; }
+    .ticket-detail { grid-template-columns: 1fr; }
+    .form-row.cols-2, .form-row.cols-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="login-logo-text">FlowPilot</div>
+        <div class="login-logo-sub">Raposo Plásticos</div>
+      </div>
+    </div>
+    <div class="login-title">Bem-vindo de volta</div>
+    <div class="login-sub">Faça login para acessar seu espaço de trabalho</div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="loginEmail" value="caseestagio@gmail.com" placeholder="seu@email.com">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="loginPass" value="••••••••••" placeholder="Sua senha">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="login-hint">user: caseestagio@gmail.com · senha: YZcQ7%i07NZo</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zm7 4l-5 5h3v5h4v-5h3l-5-5z"/></svg>
+      </div>
+      <div class="logo-text">
+        RAPOSO<br><span style="font-weight:400">PLÁSTICOS</span>
+        <small>by FlowPilot</small>
+      </div>
+    </div>
+    <div class="sidebar-toggle" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="header-center">
+      <div class="header-date" id="headerDate"></div>
+      <div class="header-weather">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+        <span>25° Fortaleza</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="icon-btn" title="Notificações">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      </div>
+      <div class="avatar" onclick="showPage('dashboard')">CE</div>
+    </div>
+  </header>
+
+  <div class="body-wrap">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </div>
+      <div class="nav-section">NAVEGAÇÃO</div>
+      <div class="nav-item" id="nav-meudia" onclick="showPage('meudia')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="nav-label">Meu Dia</span>
+      </div>
+      <div class="nav-item" id="nav-tarefas" onclick="showPage('tarefas')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        <span class="nav-label">Minhas Tarefas</span>
+      </div>
+      <div class="nav-item" id="nav-planners" onclick="showPage('planners')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        <span class="nav-label">Meus Planners</span>
+      </div>
+      <div class="nav-item" id="nav-helpdesk" onclick="showPage('helpdesk')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="nav-label">Helpdesk</span>
+      </div>
+      <div class="nav-item" id="nav-admin" onclick="showPage('admin')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/><path d="M12 14v7M8 18h8"/></svg>
+        <span class="nav-label">Admin</span>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main" id="mainContent">
+      <!-- PAGES RENDERED BY JS -->
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div>© 2026 FlowPilot. Todos os direitos reservados. ® Desenvolvido por FlowPilot.</div>
+    <div class="footer-links">
+      <a href="#">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/></svg>
+        FAQ
+      </a>
+      <a href="#">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Suporte
+      </a>
+    </div>
+  </footer>
+</div>
+
+<!-- MODAL: Nova Tarefa -->
+<div class="overlay" id="modalTarefa">
+  <div class="modal" style="width:620px">
+    <div class="modal-header">
+      <div class="modal-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Nova Tarefa
+      </div>
+      <button class="modal-close" onclick="closeModal('modalTarefa')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <div class="field-label"><span class="field-required">*</span> Planner</div>
+        <select class="field-select">
+          <option value="">Selecione o Planner...</option>
+          <option>GESTÃO DE GARRAFA</option>
+          <option>DADOS</option>
+          <option>ENGENHEIRO DE DADOS</option>
+        </select>
+      </div>
+      <div class="form-row cols-3">
+        <div>
+          <div class="field-label"><span class="field-required">*</span> Nome da Tarefa</div>
+          <input type="text" class="field-input" placeholder="Digite o nome da tarefa">
+        </div>
+        <div>
+          <div class="field-label"><span class="field-required">*</span> Task List</div>
+          <select class="field-select">
+            <option>Selecione...</option>
+            <option>FORTALPLAST</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label"><span class="field-required">*</span> Conclusão</div>
+          <input type="date" class="field-input">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label"><span class="field-required">*</span> Descrição</div>
+        <textarea class="field-textarea" placeholder="Descreva a tarefa (obrigatório)"></textarea>
+        <button class="ai-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Fixar descrição para recorrência
+        </button>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <div class="field-label"><span class="field-required">*</span> Responsável</div>
+          <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--gray-200);border-radius:6px;background:#f0f4ff;">
+            <div class="avatar-chip" style="background:var(--blue)">CE</div>
+            <span style="font-size:12px;color:var(--blue)">Case - Estagio ✕</span>
+          </div>
+          <select class="field-select" style="margin-top:6px">
+            <option>Adicionar responsável...</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">Acompanhamento</div>
+          <div style="font-size:12px;color:var(--gray-400);padding:4px 0">Nenhum selecionado</div>
+          <select class="field-select" style="margin-top:6px">
+            <option>Adicionar acompanhante...</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Tipo de Recorrência</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;display:flex;align-items:center;gap:6px;border:1px solid var(--gray-200);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--gray-600)">
+            <span style="color:var(--gray-400)">✕</span> Não se repete
+          </div>
+          <button style="width:32px;height:32px;border-radius:6px;background:var(--blue);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalTarefa')">✕ Cancelar</button>
+      <button class="btn btn-primary" onclick="createTask()">✓ Criar Tarefa</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Novo Chamado Helpdesk -->
+<div class="overlay" id="modalChamado">
+  <div class="modal" style="width:580px">
+    <div class="modal-header">
+      <div class="modal-title" id="modalChamadoTitle">+ Abrir Chamado – TI</div>
+      <button class="modal-close" onclick="closeModal('modalChamado')">✕</button>
+    </div>
+    <div class="modal-body" id="modalChamadoBody">
+      <!-- preenchido dinamicamente -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalChamado')">✕ Cancelar</button>
+      <button class="btn btn-primary" onclick="submitChamado()">✓ Abrir Chamado</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Novo Planner -->
+<div class="overlay" id="modalPlanner">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Criar Novo Planner</div>
+      <button class="modal-close" onclick="closeModal('modalPlanner')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--gray-500);margin-bottom:16px">Preencha as informações abaixo para criar um novo planner</div>
+      <div class="section-title">Informações Básicas</div>
+      <div class="field-group">
+        <div class="field-label"><span class="field-required">*</span> Nome</div>
+        <input type="text" class="field-input" placeholder="Nome do planner">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Descrição</div>
+        <textarea class="field-textarea" placeholder="Descrição do planner (opcional)"></textarea>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <div class="field-label"><span class="field-required">*</span> Grupo</div>
+          <select class="field-select">
+            <option>Selecione um grupo</option>
+            <option>FORTALPLAST</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label"><span class="field-required">*</span> Setor</div>
+          <select class="field-select">
+            <option>Selecione um setor</option>
+            <option>TECNOLOGIA</option>
+            <option>RH</option>
+            <option>MANUTENÇÃO</option>
+            <option>QUALIDADE</option>
+          </select>
+        </div>
+      </div>
+      <div class="section-title" style="margin-top:4px">Adicionar Membros</div>
+      <div style="font-size:11px;color:var(--gray-500);margin-bottom:10px">Você pode adicionar usuários de qualquer grupo ao planner. Todos os membros adicionados terão acesso ao planner de acordo com o nível de acesso definido.</div>
+      <div style="background:var(--blue-light);border:1px solid #bfdbfe;border-radius:6px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span style="font-size:11px;color:var(--blue)"><b>Permissão Necessária</b><br>Somente usuários com permissão para criar planners podem adicionar membros</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input type="text" class="field-input" placeholder="Inserir nome ou email" style="flex:1">
+        <button class="btn btn-primary btn-sm">+ Adicionar</button>
+      </div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:12px;text-align:center">Nenhum membro adicionado ainda. Use o campo acima para adicionar membros (você pode adicionar usuários de qualquer grupo).</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalPlanner')">Cancelar</button>
+      <button class="btn btn-primary" onclick="closeModal('modalPlanner');showNotif('Planner criado com sucesso!','success')">✓ Criar Planner</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notif"></div>
+
+<script>
+// ==================== STATE ====================
+let sidebarCollapsed = false;
+let currentPage = 'dashboard';
+let currentSector = 'ti';
+let viewMode = 'list';
+
+const state = {
+  chamados: [
+    { id:'#HD-001', titulo:'Computador não liga', setor:'TI', status:'Em Andamento', prioridade:'Alta', responsavel:'CE', data:'05/04/2026', empresa:'FORTALPLAST' },
+    { id:'#HD-002', titulo:'Solicitação de Férias – Maio', setor:'RH', status:'Aguardando', prioridade:'Média', responsavel:'CE', data:'04/04/2026', empresa:'FORTALPLAST' },
+    { id:'#HD-003', titulo:'Vazamento na sala A3', setor:'Manutenção', status:'Não Iniciado', prioridade:'Alta', responsavel:'CE', data:'03/04/2026', empresa:'FORTALPLAST' },
+    { id:'#HD-004', titulo:'Lote 2024-B com defeito estético', setor:'Qualidade', status:'Concluído', prioridade:'Baixa', responsavel:'CE', data:'02/04/2026', empresa:'FORTALPLAST' },
+    { id:'#HD-005', titulo:'Erro de acesso ao sistema ERP', setor:'TI', status:'Em Andamento', prioridade:'Alta', responsavel:'CE', data:'01/04/2026', empresa:'RAPOSO' },
+  ],
+  tarefas: [
+    { id:1, nome:'TESTE', planner:'GESTÃO DE GARRAFA', taskList:'FORTALPLAST', responsavel:'C', acompanhamento:'H', inicio:'Não definida', conclusao:'08/04/2026', prioridade:'media', progresso:'Não Iniciado' },
+  ],
+  planners: [
+    { id:1, nome:'GESTÃO DE GARRAFA', desc:'Sem descrição', grupo:'FORTALPLAST', setor:'TECNOLOGIA', tarefas:1, criado:'Admin Client', data:'26/09/2024', cor:'#3b82f6' },
+    { id:2, nome:'DADOS', desc:'Sem descrição', grupo:'FORTALPLAST', setor:'TECNOLOGIA', tarefas:1, criado:'Giselle Sabino', data:'04/02/2024', cor:'#22c55e' },
+    { id:3, nome:'🔒 ENGENHEIRO DE DADOS', desc:'Sem descrição', grupo:'FORTALPLAST', setor:'TECNOLOGIA', tarefas:0, criado:'Admin Client', data:'09/09/2024', cor:'#f97316' },
+  ]
+};
+
+const sectorFields = {
+  ti: {
+    label: 'TI – Tecnologia da Informação', color: '#3b82f6', dot: 'dot-ti',
+    fields: [
+      { name:'tipoproblema', label:'Tipo de Problema', type:'select', options:['Hardware','Software','Rede','Acesso'], required:true },
+      { name:'ativo', label:'Ativo Relacionado (ID do PC, Impressora, Servidor)', type:'text', required:false },
+      { name:'urgencia', label:'Urgência', type:'select', options:['Baixa','Média','Alta','Crítica'], required:true },
+      { name:'so', label:'Sistema Operacional', type:'select', options:['Windows 10','Windows 11','Linux','macOS'], required:false },
+      { name:'erro', label:'Mensagem de Erro', type:'textarea', required:false },
+    ]
+  },
+  rh: {
+    label: 'RH – Recursos Humanos', color: '#22c55e', dot: 'dot-rh',
+    fields: [
+      { name:'assunto', label:'Assunto', type:'select', options:['Férias','Benefícios','Ponto Eletrônico','Recrutamento','Treinamento'], required:true },
+      { name:'matricula', label:'Matrícula do Funcionário', type:'text', required:true },
+      { name:'anexo', label:'Anexo de Documentos', type:'file', required:false },
+      { name:'dataresol', label:'Data Desejada para Resolução', type:'date', required:false },
+    ]
+  },
+  manut: {
+    label: 'Manutenção – Infraestrutura/Predial', color: '#f97316', dot: 'dot-manut',
+    fields: [
+      { name:'local', label:'Local/Área Afetada', type:'select', options:['Sala','Andar','Equipamento específico','Área externa'], required:true },
+      { name:'tipomanut', label:'Tipo de Manutenção', type:'select', options:['Elétrica','Hidráulica','Civil','Equipamentos'], required:true },
+      { name:'gravidade', label:'Gravidade do Dano', type:'select', options:['Leve','Moderado','Grave','Crítico'], required:true },
+      { name:'interdicao', label:'Necessidade de Interdição da Área', type:'select', options:['Não','Sim – parcial','Sim – total'], required:true },
+    ]
+  },
+  qual: {
+    label: 'Qualidade de Produtos', color: '#8b5cf6', dot: 'dot-qual',
+    fields: [
+      { name:'produto', label:'Produto/Lote Afetado (ID ou Nome)', type:'text', required:true },
+      { name:'tiponc', label:'Tipo de Não Conformidade', type:'select', options:['Defeito Estético','Funcional','Material'], required:true },
+      { name:'quantidade', label:'Quantidade Afetada', type:'number', required:true },
+      { name:'locfalha', label:'Localização da Falha no Processo', type:'text', required:false },
+    ]
+  }
+};
+
+// ==================== UI ====================
+function doLogin() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  updateHeaderDate();
+  showPage('dashboard');
+}
+
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
+}
+
+function updateHeaderDate() {
+  const now = new Date();
+  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const d = days[now.getDay()];
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('headerDate').textContent = `${d}. ${now.getDate()} · ${h}:${m}`;
+}
+setInterval(updateHeaderDate, 60000);
+
+function showPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const nav = document.getElementById('nav-' + page);
+  if (nav) nav.classList.add('active');
+  const main = document.getElementById('mainContent');
+  main.innerHTML = pages[page] ? pages[page]() : '<div style="padding:40px;color:var(--gray-500)">Página em construção...</div>';
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showNotif(msg, type='info') {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className = `notification ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function createTask() {
+  closeModal('modalTarefa');
+  showNotif('Tarefa criada com sucesso!', 'success');
+}
+
+function submitChamado() {
+  closeModal('modalChamado');
+  const sectors = { ti:'TI', rh:'RH', manut:'Manutenção', qual:'Qualidade' };
+  state.chamados.unshift({
+    id: '#HD-00' + (state.chamados.length+1),
+    titulo: 'Novo chamado – ' + sectors[currentSector],
+    setor: sectors[currentSector],
+    status: 'Não Iniciado',
+    prioridade: 'Média',
+    responsavel: 'CE',
+    data: new Date().toLocaleDateString('pt-BR'),
+    empresa: 'FORTALPLAST'
+  });
+  showNotif('Chamado aberto com sucesso!', 'success');
+  showPage('helpdesk');
+}
+
+function openChamadoModal(sector) {
+  currentSector = sector;
+  const sf = sectorFields[sector];
+  document.getElementById('modalChamadoTitle').textContent = `+ Abrir Chamado – ${sf.label}`;
+  let html = `
+    <div class="field-group">
+      <div class="field-label"><span class="field-required">*</span> Título do Chamado</div>
+      <input type="text" class="field-input" placeholder="Descreva brevemente o problema">
+    </div>
+    <div class="field-group">
+      <div class="field-label"><span class="field-required">*</span> Descrição</div>
+      <textarea class="field-textarea" placeholder="Detalhe o chamado..."></textarea>
+    </div>
+    <div class="section-title">Campos Específicos – ${sf.label}</div>
+  `;
+  sf.fields.forEach(f => {
+    html += `<div class="field-group"><div class="field-label">${f.required ? '<span class="field-required">*</span> ' : ''}${f.label}</div>`;
+    if (f.type === 'select') {
+      html += `<select class="field-select"><option value="">Selecione...</option>${f.options.map(o => `<option>${o}</option>`).join('')}</select>`;
+    } else if (f.type === 'textarea') {
+      html += `<textarea class="field-textarea" placeholder="..."></textarea>`;
+    } else if (f.type === 'file') {
+      html += `<input type="file" class="field-input" style="padding:4px">`;
+    } else {
+      html += `<input type="${f.type}" class="field-input" placeholder="">`;
+    }
+    html += '</div>';
+  });
+  document.getElementById('modalChamadoBody').innerHTML = html;
+  openModal('modalChamado');
+}
+
+// ==================== PAGES ====================
+const pages = {
+  dashboard: () => `
+    <div class="welcome-card">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:40px;height:40px;background:var(--blue-light);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--blue)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div>
+          <div class="welcome-title">Olá, Case – Estagio!</div>
+          <div class="welcome-sub">Bem-vindo ao seu espaço de trabalho</div>
+        </div>
+      </div>
+    </div>
+    <div class="card card-body">
+      <div class="quick-actions-label">Ações Rápidas <span>Acesso rápido</span></div>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="openModal('modalTarefa')">
+          <div class="quick-card-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          </div>
+          <div>
+            <div class="quick-card-title">Nova Tarefa</div>
+            <div class="quick-card-sub">Criar nova tarefa</div>
+          </div>
+        </div>
+        <div class="quick-card" onclick="showPage('dashboard')">
+          <div class="quick-card-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="quick-card-title">Meu Perfil</div>
+            <div class="quick-card-sub">Editar informações</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+
+  meudia: () => `
+    <div class="page-header">
+      <div class="page-title-wrap">
+        <div class="page-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="page-title">Meu Dia</div>
+          <div class="page-sub">segunda-feira, 6 de abril de 2026</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="badge badge-gray">⊙ 0 Tarefas</span>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modalTarefa')">+ Adicionar Tarefa</button>
+      </div>
+    </div>
+    <div class="tabs"><div class="tab active">⊙ Tarefas</div></div>
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Buscar na tabela (nome e descrição)...">
+      </div>
+      <div class="filter-btn">≡ Filtros</div>
+    </div>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>
+      </div>
+      <div class="empty-title">Nenhuma tarefa encontrada</div>
+      <div class="empty-sub">Não há tarefas para exibir.</div>
+    </div>
+  `,
+
+  tarefas: () => `
+    <div class="page-header">
+      <div class="page-title-wrap">
+        <div class="page-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <div>
+          <div class="page-title">Quadro de Tarefas</div>
+          <div class="page-sub">Gerencie suas tarefas e informações de forma organizada</div>
+        </div>
+      </div>
+      <span style="font-size:12px;color:var(--gray-500)">3 Planners</span>
+    </div>
+    <div class="tabs">
+      <div class="tab active">⊙ Tarefas</div>
+    </div>
+    <div class="toolbar">
+      <div class="view-btns">
+        <button class="view-btn ${viewMode==='list'?'active':''}" onclick="viewMode='list';showPage('tarefas')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button class="view-btn ${viewMode==='kanban'?'active':''}" onclick="viewMode='kanban';showPage('tarefas')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </button>
+      </div>
+      <div class="search-box">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Buscar em tarefas e descrições...">
+      </div>
+      <div class="filter-btn">≡ Filtros <span class="tab-badge" style="font-size:9px">1</span></div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modalTarefa')">+ Adicionar Tarefa</button>
+    </div>
+    ${viewMode === 'list' ? renderTarefasTable() : renderKanban()}
+    <div style="font-size:11px;color:var(--gray-400);display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+      <select style="border:1px solid var(--gray-200);border-radius:4px;padding:2px 6px;font-size:11px;color:var(--gray-600)"><option>15</option><option>25</option><option>50</option></select>
+      <span>${state.tarefas.length} a ${state.tarefas.length} de ${state.tarefas.length}</span>
+      <div class="pagination">
+        <div class="page-btn">«</div><div class="page-btn">‹</div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn">›</div><div class="page-btn">»</div>
+      </div>
+    </div>
+  `,
+
+  planners: () => `
+    <div class="page-header">
+      <div class="page-title-wrap">
+        <div class="page-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        </div>
+        <div>
+          <div class="page-title">Planner</div>
+          <div class="page-sub">Gerencie planners organizacionais por grupos e setores</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;color:var(--blue)">⊙ Clique em um planner para ver suas tarefas · Alterne entre Cards e Lista</span>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modalPlanner')">+ Novo Planner</button>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-icon"><div style="width:28px;height:28px;background:#eff4ff;border-radius:8px;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div></div>
+        <div class="stat-number">3</div>
+        <div class="stat-label">Total de Planners</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><div style="width:28px;height:28px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div></div>
+        <div class="stat-number">1</div>
+        <div class="stat-label">Grupos Atendidos</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><div style="width:28px;height:28px;background:#fff7ed;border-radius:8px;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></div></div>
+        <div class="stat-number">1</div>
+        <div class="stat-label">Setores Atendidos</div>
+      </div>
+    </div>
+    <div class="card card-body">
+      <div style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:10px">⊙ Planners do Sistema</div>
+      <div class="toolbar" style="margin-bottom:12px">
+        <div class="view-btns">
+          <button class="view-btn active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></button>
+          <button class="view-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        </div>
+        <div class="search-box">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Buscar planners...">
+        </div>
+      </div>
+      <div class="planner-grid">
+        ${state.planners.map(p => `
+          <div class="planner-card" onclick="showNotif('Abrindo planner: ${p.nome}','info')">
+            <div class="planner-card-header">
+              <div class="planner-icon" style="background:${p.cor}22">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${p.cor}" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+              </div>
+              <div class="planner-name">${p.nome}</div>
+            </div>
+            <div class="planner-desc">${p.desc}</div>
+            <div class="planner-meta">
+              <div class="planner-meta-item"><label>Grupo:</label><span>${p.grupo}</span></div>
+              <div class="planner-meta-item"><label>Setor:</label><span>${p.setor}</span></div>
+              <div class="planner-meta-item"><label>Tarefas:</label><span>${p.tarefas}</span></div>
+              <div class="planner-meta-item"><label>Criado por:</label><span>${p.criado}</span></div>
+            </div>
+            <div class="planner-footer">
+              <span style="font-size:10px;color:var(--gray-400)">${p.data}</span>
+              <a href="#" onclick="event.stopPropagation()">→ Ver Tarefas</a>
+              <span style="font-size:10px;color:var(--gray-400)">© ${Math.floor(Math.random()*9999).toString().padStart(4,'0')} h</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `,
+
+  helpdesk: () => `
+    <div class="page-header">
+      <div class="page-title-wrap">
+        <div class="page-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="page-title">Helpdesk</div>
+          <div class="page-sub">Central de chamados por setor</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openChamadoModal(currentSector)">+ Abrir Chamado</button>
+    </div>
+    <div class="sector-tabs">
+      ${[['ti','TI','dot-ti'],['rh','RH','dot-rh'],['manut','Manutenção','dot-manut'],['qual','Qualidade','dot-qual']].map(([k,l,d]) => `
+        <div class="sector-chip ${currentSector===k?'active-'+k:''}" onclick="currentSector='${k}';showPage('helpdesk')">
+          <div class="sector-dot ${d}"></div>${l}
+        </div>
+      `).join('')}
+    </div>
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Buscar chamados...">
+      </div>
+      <div class="filter-btn">≡ Filtros</div>
+    </div>
+    ${renderChamadosTable()}
+    <div style="font-size:11px;color:var(--gray-400);display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+      <span>${state.chamados.filter(c => c.setor === ({ti:'TI',rh:'RH',manut:'Manutenção',qual:'Qualidade'}[currentSector])).length} chamado(s) neste setor</span>
+      <div class="pagination">
+        <div class="page-btn">«</div><div class="page-btn">‹</div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn">›</div><div class="page-btn">»</div>
+      </div>
+    </div>
+  `,
+
+  admin: () => `
+    <div class="page-header">
+      <div class="page-title-wrap">
+        <div class="page-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/><path d="M12 14v7M8 18h8"/></svg>
+        </div>
+        <div>
+          <div class="page-title">Painel Administrativo</div>
+          <div class="page-sub">Gerencie Helpdesks, setores e acesso por empresa</div>
+        </div>
+      </div>
+      <span class="badge badge-blue">Admin Master</span>
+    </div>
+    <div class="admin-grid">
+      ${[
+        { key:'ti', label:'TI – Tecnologia da Informação', color:'#3b82f6', bg:'#eff6ff', active:true,
+          empresas:['FORTALPLAST','RAPOSO PLÁSTICOS'],
+          campos:['Tipo de Problema','Ativo Relacionado','Urgência','Sistema Operacional','Mensagem de Erro'] },
+        { key:'rh', label:'RH – Recursos Humanos', color:'#22c55e', bg:'#f0fdf4', active:true,
+          empresas:['FORTALPLAST'],
+          campos:['Assunto','Matrícula','Anexo de Documentos','Data Desejada'] },
+        { key:'manut', label:'Manutenção – Predial', color:'#f97316', bg:'#fff7ed', active:false,
+          empresas:[],
+          campos:['Local/Área Afetada','Tipo de Manutenção','Gravidade','Interdição'] },
+        { key:'qual', label:'Qualidade de Produtos', color:'#8b5cf6', bg:'#f5f3ff', active:true,
+          empresas:['FORTALPLAST'],
+          campos:['Produto/Lote','Tipo de NC','Quantidade','Localização da Falha'] },
+      ].map(s => `
+        <div class="sector-admin-card">
+          <div class="sector-admin-header">
+            <div class="sector-admin-name">
+              <div style="width:10px;height:10px;background:${s.color};border-radius:50%"></div>
+              ${s.label}
+            </div>
+            <label class="toggle">
+              <input type="checkbox" ${s.active?'checked':''} onchange="showNotif('Helpdesk ${s.label} ${s.active?'des':''}ativado','info')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div style="font-size:11px;color:var(--gray-500);margin-bottom:8px">Empresas com acesso:</div>
+          <div class="company-chips">
+            ${s.empresas.length ? s.empresas.map(e => `<span class="company-chip">${e}</span>`).join('') : '<span style="font-size:11px;color:var(--gray-400)">Nenhuma empresa vinculada</span>'}
+          </div>
+          <div style="font-size:11px;color:var(--gray-500);margin-top:10px;margin-bottom:4px">Campos do formulário:</div>
+          <div class="field-list">
+            ${s.campos.map(c => `
+              <div class="field-item">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="${s.color}" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                ${c}
+              </div>
+            `).join('')}
+          </div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:10px;width:100%" onclick="showNotif('Configurando ${s.label}...','info')">
+            ✎ Configurar Setor
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `
+};
+
+function renderTarefasTable() {
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome da Tarefa ↕</th>
+            <th>Responsável ↕</th>
+            <th>Acompanhamento ↕</th>
+            <th>Data Início ↕</th>
+            <th>Data Conclusão ↕</th>
+            <th>Planner ↕</th>
+            <th>Task List ↕</th>
+            <th>Prioridade ↕</th>
+            <th>Progresso ↕</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${state.tarefas.map(t => `
+            <tr>
+              <td><b style="font-size:12px">${t.nome}</b></td>
+              <td><div class="avatar-chip" style="background:var(--blue)">${t.responsavel}</div></td>
+              <td><div class="avatar-chip" style="background:var(--purple)">${t.acompanhamento}</div></td>
+              <td><span style="color:var(--gray-400)">${t.inicio}</span></td>
+              <td>📅 ${t.conclusao}</td>
+              <td>
+                <span style="display:inline-flex;align-items:center;gap:5px">
+                  <span style="width:8px;height:8px;background:#22c55e;border-radius:2px;display:inline-block"></span>
+                  <b style="font-size:11px">GESTÃO DE GARRAFA</b>
+                </span>
+              </td>
+              <td>
+                <span style="display:inline-flex;align-items:center;gap:4px">
+                  <span style="width:6px;height:6px;background:var(--blue);border-radius:50%"></span>
+                  FORTALPLAST
+                </span>
+              </td>
+              <td><span class="badge badge-yellow">${t.prioridade}</span></td>
+              <td><span class="badge" style="background:#fff0f0;color:var(--red)">⊙ ${t.progresso}</span></td>
+              <td><button style="width:24px;height:24px;border:none;background:transparent;cursor:pointer;color:var(--gray-400);font-size:14px">⋮</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderKanban() {
+  return `
+    <div class="kanban-board">
+      ${[['Não Iniciado','red'],['Em Andamento','orange'],['Aguardando','yellow'],['Concluído','green']].map(([status, color]) => {
+        const tasks = state.tarefas.filter(() => status === 'Não Iniciado');
+        return `
+          <div class="kanban-col">
+            <div class="kanban-col-header" style="background:var(--${color === 'orange' ? 'orange' : color === 'yellow' ? 'yellow' : color === 'green' ? 'green' : 'red'})">
+              <span class="kanban-col-title">${status}</span>
+              <span class="kanban-col-count">${status==='Não Iniciado'?tasks.length:0}</span>
+            </div>
+            <div class="kanban-col-body">
+              ${status === 'Não Iniciado' ? tasks.map(t => `
+                <div class="kanban-card">
+                  <div class="kanban-card-title">${t.nome}</div>
+                  <div class="kanban-card-meta">
+                    <div class="avatar-chip" style="background:var(--blue);width:20px;height:20px;font-size:9px">${t.responsavel}</div>
+                    <div class="kanban-card-date">📅 ${t.conclusao}</div>
+                  </div>
+                </div>
+              `).join('') : ''}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderChamadosTable() {
+  const sectorMap = { ti:'TI', rh:'RH', manut:'Manutenção', qual:'Qualidade' };
+  const filtered = state.chamados.filter(c => c.setor === sectorMap[currentSector]);
+  if (!filtered.length) {
+    return `<div class="empty-state">
+      <div class="empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="empty-title">Nenhum chamado neste setor</div>
+      <div class="empty-sub">Clique em "+ Abrir Chamado" para criar o primeiro.</div>
+    </div>`;
+  }
+  const statusClass = { 'Não Iniciado':'status-nao-iniciado','Em Andamento':'status-em-andamento','Concluído':'status-concluido','Aguardando':'status-aguardando' };
+  const prioClass = { 'Alta':'badge-red','Média':'badge-yellow','Baixa':'badge-green' };
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID ↕</th>
+            <th>Título ↕</th>
+            <th>Status ↕</th>
+            <th>Prioridade ↕</th>
+            <th>Responsável ↕</th>
+            <th>Empresa ↕</th>
+            <th>Data ↕</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(c => `
+            <tr onclick="showTicket('${c.id}')" style="cursor:pointer">
+              <td><span class="badge badge-gray">${c.id}</span></td>
+              <td><b style="font-size:12px">${c.titulo}</b></td>
+              <td><span class="badge ${statusClass[c.status]||'badge-gray'}"><span class="badge-dot"></span>${c.status}</span></td>
+              <td><span class="badge ${prioClass[c.prioridade]||'badge-gray'}">${c.prioridade}</span></td>
+              <td><div style="display:flex;align-items:center;gap:6px"><div class="avatar-chip" style="background:var(--blue);width:22px;height:22px;font-size:9px">${c.responsavel}</div><span style="font-size:11px">${c.responsavel}</span></div></td>
+              <td><span class="company-chip">${c.empresa}</span></td>
+              <td style="font-size:11px;color:var(--gray-500)">📅 ${c.data}</td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showTicket('${c.id}')">Ver</button>
+                  <button style="width:24px;height:24px;border:none;background:transparent;cursor:pointer;color:var(--gray-400);font-size:14px">⋮</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function showTicket(id) {
+  const ticket = state.chamados.find(c => c.id === id);
+  if (!ticket) return;
+  const main = document.getElementById('mainContent');
+  const statusClass = { 'Não Iniciado':'status-nao-iniciado','Em Andamento':'status-em-andamento','Concluído':'status-concluido','Aguardando':'status-aguardando' };
+  const prioClass = { 'Alta':'badge-red priority-high','Média':'badge-yellow priority-med','Baixa':'badge-green priority-low' };
+  main.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <button class="btn btn-secondary btn-sm" onclick="showPage('helpdesk')">← Voltar</button>
+      <span style="font-size:12px;color:var(--gray-400)">${ticket.id}</span>
+    </div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">${ticket.titulo}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <span class="badge ${statusClass[ticket.status]||'badge-gray'}"><span class="badge-dot"></span>${ticket.status}</span>
+          <span class="badge ${prioClass[ticket.prioridade]||'badge-gray'}">${ticket.prioridade}</span>
+          <span class="badge badge-gray">${ticket.setor}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <select class="field-select" style="width:160px" onchange="showNotif('Status atualizado!','success')">
+          <option ${ticket.status==='Não Iniciado'?'selected':''}>Não Iniciado</option>
+          <option ${ticket.status==='Em Andamento'?'selected':''}>Em Andamento</option>
+          <option ${ticket.status==='Aguardando'?'selected':''}>Aguardando</option>
+          <option ${ticket.status==='Concluído'?'selected':''}>Concluído</option>
+        </select>
+      </div>
+    </div>
+    <div class="ticket-detail">
+      <div class="ticket-main">
+        <div class="card card-body">
+          <div style="font-size:12px;font-weight:700;color:var(--gray-700);margin-bottom:8px">Descrição</div>
+          <div style="font-size:12px;color:var(--gray-600);line-height:1.7">
+            Chamado aberto para o setor de <b>${ticket.setor}</b>.<br>
+            Aguardando análise e resolução pela equipe responsável.
+          </div>
+        </div>
+        <div class="comment-area">
+          <div class="comment-header">💬 Comentários e Interações</div>
+          <div class="comment-list">
+            <div class="comment-item">
+              <div class="comment-avatar" style="background:var(--blue)">CE</div>
+              <div class="comment-bubble">
+                <div class="comment-meta">
+                  <span class="comment-name">Case – Estagio</span>
+                  <span class="comment-time">hoje, ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
+                </div>
+                <div class="comment-text">Chamado aberto. <span class="comment-mention">@Atendente</span> por favor verificar com prioridade.</div>
+              </div>
+            </div>
+          </div>
+          <div class="comment-input-area">
+            <div class="comment-avatar" style="background:var(--blue)">CE</div>
+            <textarea class="comment-input" rows="2" placeholder="Escreva um comentário... Use @nome para mencionar"></textarea>
+            <button class="btn btn-primary btn-sm" onclick="addComment()">Enviar</button>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-sidebar-panel">
+        <div class="info-panel">
+          <div class="info-panel-title">Detalhes do Chamado</div>
+          <div class="info-row"><span class="info-label">Setor</span><span class="info-value">${ticket.setor}</span></div>
+          <div class="info-row"><span class="info-label">Status</span><span class="info-value"><span class="badge ${statusClass[ticket.status]}">${ticket.status}</span></span></div>
+          <div class="info-row"><span class="info-label">Prioridade</span><span class="info-value"><span class="badge ${prioClass[ticket.prioridade]}">${ticket.prioridade}</span></span></div>
+          <div class="info-row"><span class="info-label">Empresa</span><span class="info-value">${ticket.empresa}</span></div>
+          <div class="info-row"><span class="info-label">Abertura</span><span class="info-value">${ticket.data}</span></div>
+          <div class="info-row"><span class="info-label">Responsável</span>
+            <div class="info-value" style="display:flex;align-items:center;gap:6px">
+              <div class="avatar-chip" style="background:var(--blue);width:20px;height:20px;font-size:9px">${ticket.responsavel}</div>
+              Case – Estagio
+            </div>
+          </div>
+        </div>
+        <div class="info-panel">
+          <div class="info-panel-title">Histórico de Status</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:8px;font-size:11px">
+              <div style="width:2px;background:var(--blue);border-radius:2px"></div>
+              <div><div style="font-weight:600;color:var(--gray-700)">Chamado Criado</div><div style="color:var(--gray-400)">${ticket.data}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addComment() {
+  const input = document.querySelector('.comment-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const list = document.querySelector('.comment-list');
+  const div = document.createElement('div');
+  div.className = 'comment-item';
+  const now = new Date();
+  div.innerHTML = `
+    <div class="comment-avatar" style="background:var(--blue)">CE</div>
+    <div class="comment-bubble">
+      <div class="comment-meta">
+        <span class="comment-name">Case – Estagio</span>
+        <span class="comment-time">agora, ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
+      </div>
+      <div class="comment-text">${text.replace(/@(\w+)/g, '<span class="comment-mention">@$1</span>')}</div>
+    </div>
+  `;
+  list.appendChild(div);
+  input.value = '';
+  showNotif('Comentário enviado! 📨 Log: notificação simulada para @mencionados', 'info');
+}
+
+// ==================== INIT ====================
+updateHeaderDate();
+</script>
+</body>
+</html>
